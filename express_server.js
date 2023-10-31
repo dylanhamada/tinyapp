@@ -10,14 +10,8 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const generateRandomString = () => {
-  let randStr = "";
-  const alphaChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-  for (let i = 0; i < 6; i++) {
-    randStr += alphaChars[Math.floor(Math.random() * alphaChars.length)];
-  }
-  return randStr;
-}
+// generate random id
+const generateRandomString = () => Math.random().toString(36).substring(5);
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -53,7 +47,7 @@ app.get("/u/:id", (req, res) => {
 app.post("/urls", (req, res) => {
   const newId = generateRandomString();
   urlDatabase[newId] = req.body.longURL;
-  res.redirect(`/urls/${newId}`); // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${newId}`);
 });
 
 app.listen(PORT, () => {
