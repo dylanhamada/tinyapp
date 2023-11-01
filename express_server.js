@@ -12,6 +12,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  u29dzi: {
+    id: "u29dzi",
+    email: "lionel@baking.com",
+    password: "jellynicegarage",
+  },
+  ved0901: {
+    id: "ved0901",
+    email: "joanna@hilton.com",
+    password: "kangarooyelpsgravely",
+  },
+};
+
 // generate random id
 const generateRandomString = () => Math.random().toString(36).substring(5);
 
@@ -30,13 +43,17 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase, 
-    username: req.cookies["username"]
+    users: users,
+    userId: req.cookies.user_id
   };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { 
+    users: users,
+    userId: req.cookies.user_id
+  };
   res.render("urls_new", templateVars);
 });
 
@@ -44,7 +61,8 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { 
     id: req.params.id, 
     longURL: urlDatabase[req.params.id],
-    username: req.cookies["username"]
+    users: users,
+    userId: req.cookies.user_id
   };
   res.render("urls_show", templateVars);
 });
@@ -55,7 +73,8 @@ app.get("/u/:id", (req, res) => {
 
 app.get("/register", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    users: users,
+    userId: req.cookies.user_id
   };
   res.render("user_login", templateVars);
 });
@@ -80,12 +99,38 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  res.cookie("user_id", req.body.userId);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
+  res.redirect("/urls");
+});
+
+app.post("/register", (req, res) => {
+  // placeholder object for new user
+  const newUser = {
+    id: "",
+    email: "",
+    password: ""
+  };
+  // get input from registration form
+  const userInput = req.body;
+
+  // set properties for new user
+  newUser.id = generateRandomString();
+  newUser.email = userInput.email;
+  newUser.password = userInput.password;
+
+  // create new property in users object with new registration details
+  users[newUser.id] = newUser;
+
+  console.log(users);
+
+  // create new cookie "user_id"
+  res.cookie("user_id", newUser.id);
+
   res.redirect("/urls");
 });
 
