@@ -50,8 +50,14 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  console.log(`${urlDatabase[req.params.id]}`);
   res.redirect(`${urlDatabase[req.params.id]}`);
+});
+
+app.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"]
+  };
+  res.render("user_login", templateVars);
 });
 
 app.post("/urls", (req, res) => {
