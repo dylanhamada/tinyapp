@@ -87,6 +87,14 @@ app.get("/register", (req, res) => {
     users: users,
     userId: req.cookies.user_id
   };
+  return res.render("user_register", templateVars);
+});
+
+app.get("/login", (req, res) => {
+  const templateVars = { 
+    users: users,
+    userId: req.cookies.user_id 
+  };
   return res.render("user_login", templateVars);
 });
 
@@ -125,26 +133,26 @@ app.post("/register", (req, res) => {
   // generate new id
   const newId = generateRandomString();
 
+  // return 400 error if email or password inputs are empty
   if (userInput.email === "" || userInput.password === "") {
     res.status(400);
     return res.render("error");
   }
 
+  // if user does not exist in users object, add it
   if (lookupUser(userInput.email) === null) {
-    // create new property in users object with registration details
     users[newId] = {
       id: newId,
       email: userInput.email,
       password: userInput.password
     };
+    // create new cookie
+    res.cookie("user_id", newId);
   } else {
+    // otherwise, return 400 error
     res.status(400);
     return res.render("error")
   }
-
-  console.log(users);
-  // create new cookie "user_id"
-  res.cookie("user_id", newId);
 
   return res.redirect("/urls");
 });
