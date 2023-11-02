@@ -28,16 +28,27 @@ const users = {
 // generate random id
 const generateRandomString = () => Math.random().toString(36).substring(5);
 
+// check if user already exists
+const lookupUser = (email) => {
+  for (let user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+
+  return null;
+};
+
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  return res.send("Hello!");
 });
 
 app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+  return res.json(urlDatabase);
 });
 
 app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  return res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.get("/urls", (req, res) => {
@@ -46,7 +57,7 @@ app.get("/urls", (req, res) => {
     users: users,
     userId: req.cookies.user_id
   };
-  res.render("urls_index", templateVars);
+  return res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -54,7 +65,7 @@ app.get("/urls/new", (req, res) => {
     users: users,
     userId: req.cookies.user_id
   };
-  res.render("urls_new", templateVars);
+  return res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -64,11 +75,11 @@ app.get("/urls/:id", (req, res) => {
     users: users,
     userId: req.cookies.user_id
   };
-  res.render("urls_show", templateVars);
+  return res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {
-  res.redirect(`${urlDatabase[req.params.id]}`);
+  return res.redirect(`${urlDatabase[req.params.id]}`);
 });
 
 app.get("/register", (req, res) => {
@@ -76,62 +87,66 @@ app.get("/register", (req, res) => {
     users: users,
     userId: req.cookies.user_id
   };
-  res.render("user_login", templateVars);
+  return res.render("user_login", templateVars);
 });
 
 app.post("/urls", (req, res) => {
   const newId = generateRandomString();
   urlDatabase[newId] = req.body.longURL;
-  res.redirect(`/urls/${newId}`);
+  return res.redirect(`/urls/${newId}`);
 });
 
 app.post("/urls/:id", (req, res) => {
   const idToUpdate = req.params.id;
   const newURL = req.body.newURL;
   urlDatabase[idToUpdate] = newURL;
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.post("/urls/:id/delete", (req, res) => {
   const idToDelete = req.params.id;
   delete urlDatabase[idToDelete];
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.post("/login", (req, res) => {
   res.cookie("user_id", req.body.userId);
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.post("/register", (req, res) => {
-  // placeholder object for new user
-  const newUser = {
-    id: "",
-    email: "",
-    password: ""
-  };
   // get input from registration form
   const userInput = req.body;
+  // generate new id
+  const newId = generateRandomString();
 
-  // set properties for new user
-  newUser.id = generateRandomString();
-  newUser.email = userInput.email;
-  newUser.password = userInput.password;
+  if (userInput.email === "" || userInput.password === "") {
+    res.status(400);
+    return res.render("error");
+  }
 
-  // create new property in users object with new registration details
-  users[newUser.id] = newUser;
+  if (lookupUser(userInput.email) === null) {
+    // create new property in users object with registration details
+    users[newId] = {
+      id: newId,
+      email: userInput.email,
+      password: userInput.password
+    };
+  } else {
+    res.status(400);
+    return res.render("error")
+  }
 
   console.log(users);
-
   // create new cookie "user_id"
-  res.cookie("user_id", newUser.id);
+  res.cookie("user_id", newId);
 
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
