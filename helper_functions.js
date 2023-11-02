@@ -1,3 +1,4 @@
+const cookieParser = require("cookie-parser");
 const { urlDatabase, users } = require("./data");
 
 // generate random id
@@ -15,10 +16,10 @@ const lookupUser = (email) => {
 
 // filter the urlDatabase object based on id
 const urlsForUser = (id) => {
-  let userURLS = [];
+  let userURLS = {};
   for (let url in urlDatabase) {
-    if (urlDatabase[url].userId === id) {
-      userURLS.push(urlDatabase[url].longURL);
+    if (urlDatabase[url].userID === id) {
+      userURLS[url] = urlDatabase[url];
     }
   }
 

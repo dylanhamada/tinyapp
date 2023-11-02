@@ -23,6 +23,8 @@ app.get("/urls", (req, res) => {
       errorMsg: "Only logged in users can see URLs. Please log in."
     });
   }
+  // only show URLs that match the user id
+  templateVars.urls = urlsForUser(templateVars.userId);
   return res.render("urls_index", templateVars);
 });
 
@@ -41,10 +43,38 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const templateVars = { 
     id: req.params.id, 
-    longURL: urlDatabase[req.params.id].longURL,
     users: users,
     userId: req.cookies.user_id
   };
+  // if id does not exist in urlDatabase, render error page
+  if (urlDatabase[req.params.id]) {
+    templateVars.longURL = urlDatabase[templateVars.id].longURL;
+  } else {
+    res.status(404);
+    return res.render("error", {
+      ...templateVars,
+      errorCode: 404,
+      errorMsg: "That URL cannot be found."
+    });
+  }
+  // if URL id does not exist, render error page
+  if (!req.cookies.user_id) {
+    res.status(403);
+    return res.render("error", {
+      ...templateVars,
+      errorCode: 403,
+      errorMsg: "You must be logged in to view URLs."
+    })
+  }
+  // if url does not belong to user, return error page
+  if (templateVars.userId !== urlDatabase[templateVars.id].userID) {
+    res.status(403);
+    return res.render("error", {
+      ...templateVars,
+      errorCode: 403,
+      errorMsg: "You do not have permission to access that URL."
+    })
+  }
   return res.render("urls_show", templateVars);
 });
 
@@ -56,7 +86,8 @@ app.get("/u/:id", (req, res) => {
   };
   // if URL id does not exist, render error page
   if (!urlDatabase[templateVars.id]) {
-    res.render("error", {
+    res.status(400);
+    return res.render("error", {
       ...templateVars,
       errorCode: 400,
       errorMsg: `URL ID "${templateVars.id}" does not exist.`
@@ -113,6 +144,19 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
+  const templateVars = { 
+    users: users,
+    userId: req.cookies.user_id 
+  };
+  // if user id in urlDatabase does not match cookie id, render error page
+  if (!urlDatabase[req.params.id]) {
+    res.status(403);
+    return res.render("error", {
+      ...templateVars,
+      errorCode: 403,
+      errorMsg: "You do not have permission to do that."
+    });
+  }
   const idToUpdate = req.params.id;
   const newURL = req.body.newURL;
   urlDatabase[idToUpdate].longURL = newURL;
@@ -120,6 +164,19 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
+  const templateVars = { 
+    users: users,
+    userId: req.cookies.user_id 
+  };
+  // if user id in urlDatabase does not match cookie id, render error page
+  if (!urlDatabase[req.params.id]) {
+    res.status(403);
+    return res.render("error", {
+      ...templateVars,
+      errorCode: 403,
+      errorMsg: "You do not have permission to do that."
+    });
+  }
   const idToDelete = req.params.id;
   delete urlDatabase[idToDelete];
   return res.redirect("/urls");
