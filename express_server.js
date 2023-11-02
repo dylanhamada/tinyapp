@@ -118,16 +118,49 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body.userId);
-  return res.redirect("/urls");
+  const templateVars = {
+    users: users,
+    userId: req.cookies.user_id
+  };
+  // get input from login form
+  const userInput = req.body;
+  // look up user function
+  const userExists = lookupUser(userInput.email);
+  // go through login checks
+  if (userExists) {
+    // if email found, compare password, if no match, return 403
+    if (userExists.password !== userInput.password) {
+      res.status(403);
+      return res.render("error", {
+        ...templateVars, 
+        errorCode: 403,
+        errorMsg: "Wrong password. Please try again."
+      });
+    }
+    // if all login checks pass, set user_id and redirect to /urls
+    res.cookie("user_id", userExists.id);
+    return res.redirect("/urls");
+  } else {
+    // if email cannot be found, return 403
+    res.status(403);
+    return res.render("error", {
+      ...templateVars, 
+      errorCode: 403,
+      errorMsg: "Email not found. Please try again."
+    });
+  }
 });
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  return res.redirect("/urls");
+  return res.redirect("/login");
 });
 
 app.post("/register", (req, res) => {
+  const templateVars = {
+    users: users,
+    userId: req.cookies.user_id
+  };
   // get input from registration form
   const userInput = req.body;
   // generate new id
@@ -136,7 +169,11 @@ app.post("/register", (req, res) => {
   // return 400 error if email or password inputs are empty
   if (userInput.email === "" || userInput.password === "") {
     res.status(400);
-    return res.render("error");
+    return res.render("error", {
+      ...templateVars, 
+      errorCode: 403,
+      errorMsg: "Empty email or password. Please try again."
+    });
   }
 
   // if user does not exist in users object, add it
@@ -151,7 +188,11 @@ app.post("/register", (req, res) => {
   } else {
     // otherwise, return 400 error
     res.status(400);
-    return res.render("error")
+    return res.render("error", {
+      ...templateVars, 
+      errorCode: 403,
+      errorMsg: "User already exists. Please log in."
+    })
   }
 
   return res.redirect("/urls");

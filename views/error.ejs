@@ -15,12 +15,14 @@
       crossorigin="anonymous"
     />
 
-    <title>Error (400) Bad Request</title>
+    <title><%= errorCode %> Error</title>
   </head>
 
   <body>
-    <div class="d-flex justify-content-center">
-      <h1>Error (400) Bad Request</h1>
+    <%- include('partials/_header') %>
+
+    <div class="d-flex mt-5 justify-content-center">
+      <h2><%= errorCode %> Error: <%= errorMsg %></h2>
     </div>
     <!-- Bootstrap JS -->
     <script
