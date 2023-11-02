@@ -65,6 +65,10 @@ app.get("/urls/new", (req, res) => {
     users: users,
     userId: req.cookies.user_id
   };
+  // if user is not logged in, redirect to /login
+  if (!templateVars.userId) {
+    return res.redirect("/login");
+  }
   return res.render("urls_new", templateVars);
 });
 
@@ -79,26 +83,62 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
+  const templateVars = {
+    id: req.params.id,
+    users: users,
+    userId: req.cookies.user_id
+  };
+  if (!urlDatabase[templateVars.id]) {
+    res.render("error", {
+      ...templateVars,
+      errorCode: 400,
+      errorMsg: `URL ID "${templateVars.id}" does not exist.`
+    })
+  }
   return res.redirect(`${urlDatabase[req.params.id]}`);
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = {
+  const templateVars = { 
+    urls: urlDatabase, 
     users: users,
-    userId: req.cookies.user_id
+    userId: req.cookies.user_id 
   };
+  // if user is logged in, redirect to /urls
+  if (templateVars.userId) {
+    return res.redirect("/urls");
+  }
   return res.render("user_register", templateVars);
 });
 
 app.get("/login", (req, res) => {
   const templateVars = { 
+    urls: urlDatabase, 
     users: users,
     userId: req.cookies.user_id 
   };
+  // if user is logged in, redirect to /urls
+  if (templateVars.userId) {
+    return res.redirect("/urls");
+  }
   return res.render("user_login", templateVars);
 });
 
 app.post("/urls", (req, res) => {
+  const templateVars = { 
+    urls: urlDatabase, 
+    users: users,
+    userId: req.cookies.user_id 
+  };
+  // if user not logged in, render error page
+  if (!templateVars.userId) {
+    res.status(403);
+    return res.render("error", {
+      ...templateVars,
+      errorCode: 403,
+      errorMsg: "Only registered users can shorten URLs. Please register."
+    });
+  }
   const newId = generateRandomString();
   urlDatabase[newId] = req.body.longURL;
   return res.redirect(`/urls/${newId}`);
