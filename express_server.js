@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
 const { generateRandomString, lookupUser, urlsForUser } = require("./helper_functions");
 const { urlDatabase, users } = require("./data");
 const PORT = 8080;
@@ -194,7 +195,7 @@ app.post("/login", (req, res) => {
   // go through login checks
   if (userExists) {
     // if email found, compare password, if no match, return 403
-    if (userExists.password !== userInput.password) {
+    if (!bcrypt.compareSync(userInput.password, userExists.password)) {
       res.status(403);
       return res.render("error", {
         ...templateVars, 
@@ -230,6 +231,8 @@ app.post("/register", (req, res) => {
   const userInput = req.body;
   // generate new id
   const newId = generateRandomString();
+  // hash the password
+  const hashedPassword = bcrypt.hashSync(userInput.password, 10);
 
   // return 400 error if email or password inputs are empty
   if (userInput.email === "" || userInput.password === "") {
@@ -246,7 +249,7 @@ app.post("/register", (req, res) => {
     users[newId] = {
       id: newId,
       email: userInput.email,
-      password: userInput.password
+      password: hashedPassword
     };
     // create new cookie
     res.cookie("user_id", newId);
