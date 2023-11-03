@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
 const { generateRandomString, lookupUser, urlsForUser } = require("./helper_functions");
 const { urlDatabase, users } = require("./data");
@@ -8,13 +8,19 @@ const PORT = 8080;
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ["appleshelptrollsquickly"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase, 
     users: users,
-    userId: req.cookies.user_id
+    userId: req.session.user_id
   };
   // only logged in users can see the index of URLs
   if (!templateVars.userId) {
@@ -32,7 +38,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const templateVars = { 
     users: users,
-    userId: req.cookies.user_id
+    userId: req.session.user_id
   };
   // if user is not logged in, redirect to /login
   if (!templateVars.userId) {
@@ -45,7 +51,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { 
     id: req.params.id, 
     users: users,
-    userId: req.cookies.user_id
+    userId: req.session.user_id
   };
   // if id does not exist in urlDatabase, render error page
   if (urlDatabase[req.params.id]) {
@@ -59,7 +65,7 @@ app.get("/urls/:id", (req, res) => {
     });
   }
   // if URL id does not exist, render error page
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.status(403);
     return res.render("error", {
       ...templateVars,
@@ -83,7 +89,7 @@ app.get("/u/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
     users: users,
-    userId: req.cookies.user_id
+    userId: req.session.user_id
   };
   // if URL id does not exist, render error page
   if (!urlDatabase[templateVars.id]) {
@@ -100,7 +106,7 @@ app.get("/u/:id", (req, res) => {
 app.get("/register", (req, res) => {
   const templateVars = { 
     users: users,
-    userId: req.cookies.user_id 
+    userId: req.session.user_id 
   };
   // if user is logged in, redirect to /urls
   if (templateVars.userId) {
@@ -112,7 +118,7 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
   const templateVars = { 
     users: users,
-    userId: req.cookies.user_id 
+    userId: req.session.user_id 
   };
   // if user is logged in, redirect to /urls
   if (templateVars.userId) {
@@ -125,7 +131,7 @@ app.post("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase, 
     users: users,
-    userId: req.cookies.user_id 
+    userId: req.session.user_id 
   };
   // if user not logged in, render error page
   if (!templateVars.userId) {
@@ -147,7 +153,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const templateVars = { 
     users: users,
-    userId: req.cookies.user_id 
+    userId: req.session.user_id 
   };
   // if user id in urlDatabase does not match cookie id, render error page
   if (!urlDatabase[req.params.id]) {
@@ -167,7 +173,7 @@ app.post("/urls/:id", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const templateVars = { 
     users: users,
-    userId: req.cookies.user_id 
+    userId: req.session.user_id 
   };
   // if user id in urlDatabase does not match cookie id, render error page
   if (!urlDatabase[req.params.id]) {
@@ -186,7 +192,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/login", (req, res) => {
   const templateVars = {
     users: users,
-    userId: req.cookies.user_id
+    userId: req.session.user_id
   };
   // get input from login form
   const userInput = req.body;
@@ -204,7 +210,7 @@ app.post("/login", (req, res) => {
       });
     }
     // if all login checks pass, set user_id and redirect to /urls
-    res.cookie("user_id", userExists.id);
+    req.session.user_id = userExists.id;
     return res.redirect("/urls");
   } else {
     // if email cannot be found, return 403
@@ -218,14 +224,14 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   return res.redirect("/login");
 });
 
 app.post("/register", (req, res) => {
   const templateVars = {
     users: users,
-    userId: req.cookies.user_id
+    userId: req.session.user_id
   };
   // get input from registration form
   const userInput = req.body;
@@ -252,7 +258,7 @@ app.post("/register", (req, res) => {
       password: hashedPassword
     };
     // create new cookie
-    res.cookie("user_id", newId);
+    req.session.user_id = newId;
   } else {
     // otherwise, return 400 error
     res.status(400);

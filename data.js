@@ -14,11 +14,13 @@ const users = {
     id: "u29dzi",
     email: "lionel@baking.com",
     password: "$2a$10$IrpFqUBcXbEaXm0.gAADEOE3noitGBh392ZVqSGB4LlrwDI.N/x5a",
+    // password: jellynicegarage
   },
   ved0901: {
     id: "ved0901",
     email: "joanna@hilton.com",
     password: "$2a$10$ZGfQuIixbhMCxI6RNrDVku0UIEaf2PgMoHJuQNdrQhG9Qk/FZncqS",
+    // password: kangarooyelpsgravely
   },
 };
 
