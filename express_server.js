@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
-const { generateRandomString, lookupUser, urlsForUser } = require("./helper_functions");
+const { generateRandomString, getUserByEmail, urlsForUser } = require("./helper_functions");
 const { urlDatabase, users } = require("./data");
 const PORT = 8080;
 
@@ -31,7 +31,7 @@ app.get("/urls", (req, res) => {
     });
   }
   // only show URLs that match the user id
-  templateVars.urls = urlsForUser(templateVars.userId);
+  templateVars.urls = urlsForUser(templateVars.userId, urlDatabase);
   return res.render("urls_index", templateVars);
 });
 
@@ -197,7 +197,7 @@ app.post("/login", (req, res) => {
   // get input from login form
   const userInput = req.body;
   // look up user function
-  const userExists = lookupUser(userInput.email);
+  const userExists = getUserByEmail(userInput.email, users);
   // go through login checks
   if (userExists) {
     // if email found, compare password, if no match, return 403
@@ -251,7 +251,7 @@ app.post("/register", (req, res) => {
   }
 
   // if user does not exist in users object, add it
-  if (lookupUser(userInput.email) === null) {
+  if (getUserByEmail(userInput.email, users) === null) {
     users[newId] = {
       id: newId,
       email: userInput.email,

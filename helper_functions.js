@@ -1,25 +1,25 @@
 const cookieParser = require("cookie-parser");
-const { urlDatabase, users } = require("./data");
+const { urlDatabase } = require("./data");
 
 // generate random id
 const generateRandomString = () => Math.random().toString(36).substring(5);
 
 // check if user already exists
-const lookupUser = (email) => {
-  for (let user in users) {
-    if (users[user].email === email) {
-      return users[user];
+const getUserByEmail = (email, database) => {
+  for (let user in database) {
+    if (database[user].email === email) {
+      return database[user];
     }
   }
   return null;
 };
 
-// filter the urlDatabase object based on id
-const urlsForUser = (id) => {
+// filter the database object based on id
+const urlsForUser = (id, database) => {
   let userURLS = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      userURLS[url] = urlDatabase[url];
+  for (let url in database) {
+    if (database[url].userID === id) {
+      userURLS[url] = database[url];
     }
   }
 
@@ -28,6 +28,6 @@ const urlsForUser = (id) => {
 
 module.exports = {
   generateRandomString,
-  lookupUser,
+  getUserByEmail,
   urlsForUser
 };
