@@ -5,7 +5,7 @@ const { users } = require("../data");
 
 describe('getUserByEmail', function() {
   it('should return a user with valid email', function() {
-    const user = getUserByEmail("lionel@baking.com", users)
+    const user = getUserByEmail("lionel@baking.com", users);
     assert.deepEqual({
       id: "u29dzi",
       email: "lionel@baking.com",
@@ -14,7 +14,7 @@ describe('getUserByEmail', function() {
     user);
   });
   it('should return null with an invalid email', function() {
-    const user = getUserByEmail("fred@flintstone.com", users)
+    const user = getUserByEmail("fred@flintstone.com", users);
     assert.equal(null, user);
   });
 });

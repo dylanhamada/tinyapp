@@ -1,6 +1,3 @@
-const cookieParser = require("cookie-parser");
-const { urlDatabase } = require("./data");
-
 // generate random id
 const generateRandomString = () => Math.random().toString(36).substring(5);
 
