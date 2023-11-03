@@ -17,8 +17,8 @@ app.use(cookieSession({
 }));
 
 app.get("/urls", (req, res) => {
-  const templateVars = { 
-    urls: urlDatabase, 
+  const templateVars = {
+    urls: urlDatabase,
     users: users,
     userId: req.session.user_id
   };
@@ -36,7 +36,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     users: users,
     userId: req.session.user_id
   };
@@ -48,8 +48,8 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { 
-    id: req.params.id, 
+  const templateVars = {
+    id: req.params.id,
     users: users,
     userId: req.session.user_id
   };
@@ -71,7 +71,7 @@ app.get("/urls/:id", (req, res) => {
       ...templateVars,
       errorCode: 403,
       errorMsg: "You must be logged in to view URLs."
-    })
+    });
   }
   // if url does not belong to user, return error page
   if (templateVars.userId !== urlDatabase[templateVars.id].userID) {
@@ -80,7 +80,7 @@ app.get("/urls/:id", (req, res) => {
       ...templateVars,
       errorCode: 403,
       errorMsg: "You do not have permission to access that URL."
-    })
+    });
   }
   return res.render("urls_show", templateVars);
 });
@@ -98,15 +98,15 @@ app.get("/u/:id", (req, res) => {
       ...templateVars,
       errorCode: 400,
       errorMsg: `URL ID "${templateVars.id}" does not exist.`
-    })
+    });
   }
   return res.redirect(`${urlDatabase[req.params.id]}`);
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     users: users,
-    userId: req.session.user_id 
+    userId: req.session.user_id
   };
   // if user is logged in, redirect to /urls
   if (templateVars.userId) {
@@ -116,9 +116,9 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     users: users,
-    userId: req.session.user_id 
+    userId: req.session.user_id
   };
   // if user is logged in, redirect to /urls
   if (templateVars.userId) {
@@ -128,10 +128,10 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const templateVars = { 
-    urls: urlDatabase, 
+  const templateVars = {
+    urls: urlDatabase,
     users: users,
-    userId: req.session.user_id 
+    userId: req.session.user_id
   };
   // if user not logged in, render error page
   if (!templateVars.userId) {
@@ -151,9 +151,9 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     users: users,
-    userId: req.session.user_id 
+    userId: req.session.user_id
   };
   // if user id in urlDatabase does not match cookie id, render error page
   if (!urlDatabase[req.params.id]) {
@@ -171,9 +171,9 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     users: users,
-    userId: req.session.user_id 
+    userId: req.session.user_id
   };
   // if user id in urlDatabase does not match cookie id, render error page
   if (!urlDatabase[req.params.id]) {
@@ -204,7 +204,7 @@ app.post("/login", (req, res) => {
     if (!bcrypt.compareSync(userInput.password, userExists.password)) {
       res.status(403);
       return res.render("error", {
-        ...templateVars, 
+        ...templateVars,
         errorCode: 403,
         errorMsg: "Wrong password. Please try again."
       });
@@ -216,7 +216,7 @@ app.post("/login", (req, res) => {
     // if email cannot be found, return 403
     res.status(403);
     return res.render("error", {
-      ...templateVars, 
+      ...templateVars,
       errorCode: 403,
       errorMsg: "Email not found. Please try again."
     });
@@ -244,7 +244,7 @@ app.post("/register", (req, res) => {
   if (userInput.email === "" || userInput.password === "") {
     res.status(400);
     return res.render("error", {
-      ...templateVars, 
+      ...templateVars,
       errorCode: 403,
       errorMsg: "Empty email or password. Please try again."
     });
@@ -263,10 +263,10 @@ app.post("/register", (req, res) => {
     // otherwise, return 400 error
     res.status(400);
     return res.render("error", {
-      ...templateVars, 
+      ...templateVars,
       errorCode: 403,
       errorMsg: "User already exists. Please log in."
-    })
+    });
   }
 
   return res.redirect("/urls");
