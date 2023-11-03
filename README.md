@@ -4,9 +4,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-![The TinyApp home page](./docs/tiny_1.jpg "TinyApp home page")
-![A TinyApp error page](./docs/tiny_2.jpg "403 error page")
-![The TinyApp edit URL page](./docs/tiny_3.jpg "TinyApp edit URL")
+![The TinyApp home page](https://github.com/dylanhamada/tinyapp/blob/master/docs/tiny_1.jpg "TinyApp home page")
+![A TinyApp error page](https://github.com/dylanhamada/tinyapp/blob/master/docs/tiny_2.jpg "403 error page")
+![The TinyApp edit URL page](https://github.com/dylanhamada/tinyapp/blob/master/docs/tiny_3.jpg "TinyApp edit URL")
 
 ## Dependencies
 
