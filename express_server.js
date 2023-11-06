@@ -96,8 +96,6 @@ app.get("/u/:id", (req, res) => {
     users: users,
     userId: req.session.user_id
   };
-  console.log("TemplateVars id is:", templateVars.id);
-  console.log("Does urlDatabase include req id?", urlDatabase[templateVars.id]);
   // if URL id does not exist, render error page
   if (!urlDatabase[templateVars.id]) {
     res.status(400);
