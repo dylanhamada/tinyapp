@@ -17,6 +17,10 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
+app.get("/", (req, res) => {
+  return res.redirect("/login");
+})
+
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
@@ -92,6 +96,8 @@ app.get("/u/:id", (req, res) => {
     users: users,
     userId: req.session.user_id
   };
+  console.log("TemplateVars id is:", templateVars.id);
+  console.log("Does urlDatabase include req id?", urlDatabase[templateVars.id]);
   // if URL id does not exist, render error page
   if (!urlDatabase[templateVars.id]) {
     res.status(400);
@@ -101,7 +107,7 @@ app.get("/u/:id", (req, res) => {
       errorMsg: `URL ID "${templateVars.id}" does not exist.`
     });
   }
-  return res.redirect(`${urlDatabase[req.params.id]}`);
+  return res.redirect(`${urlDatabase[templateVars.id].longURL}`);
 });
 
 app.get("/register", (req, res) => {
